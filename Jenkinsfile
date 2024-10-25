@@ -4,28 +4,25 @@ pipeline {
     stages {
         stage('Build Docker Image') {
             steps {
-                script {
-                    // Build the Docker image using the Dockerfile
-                    def dockerImage = docker.build("my-flask-app:latest")
-                }
+                // Use bat for Windows command to build Docker image
+                bat 'docker build -t my-flask-app:latest .'
             }
         }
 
         stage('Run Docker Container') {
             steps {
-                script {
-                    // Run a container from the built image in detached (daemon) mode
-                    sh 'docker run -d -p 5000:5000 --name my-flask-container my-flask-app:latest'
-                }
+                // Use bat command to run Docker container without nohup
+                bat 'docker run -d -p 5000:5000 --name my-flask-container my-flask-app:latest'
             }
         }
     }
 
     post {
         always {
-            // Clean up Docker containers and images to save space
-            sh 'docker stop my-flask-container || true && docker rm my-flask-container || true'
-            sh 'docker rmi my-flask-app:latest || true'
+            // Cleanup Docker containers and images
+            bat 'docker stop my-flask-container || echo ignored'
+            bat 'docker rm my-flask-container || echo ignored'
+            bat 'docker rmi my-flask-app:latest || echo ignored'
         }
     }
 }
